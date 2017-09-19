@@ -47,6 +47,9 @@ public class GroundDetect : MonoBehaviour
 
     public bool processBalance;
 
+    //在地面的累积时间
+    public float timeStand = 0;
+
     // Use this for initialization
     void Start()
     {
@@ -65,6 +68,16 @@ public class GroundDetect : MonoBehaviour
         DetectingGround();
 
         CalculateDisGround();
+
+        //设置站立了多久
+        if (disGround == 0)
+        {
+            timeStand += Time.deltaTime;
+        }
+        else
+        {
+            timeStand = 0;
+        }
     }
 
     void DetectingGround()

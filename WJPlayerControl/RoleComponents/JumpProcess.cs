@@ -96,7 +96,11 @@ public class JumpProcess : MonoBehaviour
                 if (role.groundDct.IsOnGround() && groundDct.IsStandable())
                 {
                     //print("跳1");
-                    _JumpOnGround(jumpSpeed);
+                    if (groundDct.timeStand > 0.1)
+                    {
+                        _JumpOnGround(jumpSpeed);
+
+                    }
                 }
                 else if (remainJumpTimes > 0)
                 {
