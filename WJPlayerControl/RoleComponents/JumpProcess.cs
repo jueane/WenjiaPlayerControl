@@ -23,12 +23,7 @@ public class JumpProcess : MonoBehaviour
     public float jumpHigher = 0.55f;
     //上升衰减速度
     public float jumpAttenuation = 13;
-
-    // Use this for initialization
-    void Start()
-    {
-    }
-
+    
     public void init()
     {
         role = GetComponent<PlayerControl>();
@@ -36,11 +31,6 @@ public class JumpProcess : MonoBehaviour
         groundDct = GetComponent<GroundDetect>();
         _animator = GetComponent<AnimatorControl>();
         //roleActionsControl = RoleActionsInputBindings.ActionsBindings();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
     }
 
     public void UpdateByParent()
@@ -96,7 +86,7 @@ public class JumpProcess : MonoBehaviour
                 if (role.groundDct.IsOnGround() && groundDct.IsStandable())
                 {
                     //print("跳1");
-                    if (groundDct.timeStand > 0.1)
+                    if (groundDct.timeStand > groundDct.minTimeStand)
                     {
                         _JumpOnGround(jumpSpeed);
 

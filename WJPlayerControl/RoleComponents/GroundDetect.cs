@@ -49,6 +49,7 @@ public class GroundDetect : MonoBehaviour
 
     //在地面的累积时间
     public float timeStand = 0;
+    public float minTimeStand = 0.1f;
 
     // Use this for initialization
     void Start()

@@ -24,11 +24,6 @@ public class FallProcess : MonoBehaviour
         groundDct = GetComponent<GroundDetect>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
     public void UpdateByParent()
     {
         if (isActiveAndEnabled == false)

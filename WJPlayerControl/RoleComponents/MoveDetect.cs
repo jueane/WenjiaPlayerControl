@@ -28,12 +28,7 @@ public class MoveDetect : MonoBehaviour
         groundDct = GetComponent<GroundDetect>();
         body = transform.Find("body");
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
+    
     public void UpdateByParent()
     {
         if (processCross)

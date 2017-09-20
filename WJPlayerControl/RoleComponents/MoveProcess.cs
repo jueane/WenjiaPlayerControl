@@ -31,35 +31,25 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
     public float StaySkyTime = 0;
     //惯性的阻力系数
     public float inertiaDrag = 5;
-
-
-    // Use this for initialization
-    void Start()
-    {
-        GameManager.Instance.AddRoleListener(this);
-    }
-
+    
     public void init()
     {
+        GameManager.Instance.AddRoleListener(this);
+
         role = GetComponent<PlayerControl>();
-
         movDct = GetComponent<MoveDetect>();
+
         model = transform.Find("body").Find("model");
-
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
+    
     public void UpdateByParent()
     {
         StaySkyTime += Time.deltaTime;
         movDct.UpdateByParent();
-        KeepMoving();
+        CalculateMoving();
     }
 
+    //帧结束时，设置惯性。
     void LateUpdate()
     {
         if (role.isFloating || GameManager.Instance.playerIsDead)
@@ -68,18 +58,6 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
             return;
         }
 
-        ////记录上一帧结束时，角色的受力状态。
-        //if (role.groundDct.IsOnIceground())
-        //{
-        //    //在冰面
-        //    if (role.slideProc.slideVector != Vector3.zero)
-        //    {
-        //        //lastFrameSpeedVector = role.slideProc.slideVector;
-        //    }
-        //    //lastFrameSpeedVector.x = role.slideProc.slideSpeedOnIce;
-        //    //lastFrameSpeedVector.Normalize();
-        //}
-        //else 
         if (role.groundDct.IsOnGround())
         {
             lastFrameSpeedVector = Vector3.zero;
@@ -109,13 +87,11 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
                         turnCount++;
                     }
                 }
-                //lastFrameSpeedVector.x = horizontalInputSpeed * inertiaInput / (turnCount + 1);
-                //输入速度满才有惯性。
+
+                //输入速度接近满值才有惯性。
                 if (Mathf.Abs(horizontalInputSpeed) >= 0.9f)
                 {
                     lastFrameSpeedVector.x = horizontalInputSpeed * inertiaInput / (turnCount * turnLoss + 1);
-
-                    //Vector3 inertiaVector = new Vector3(lastFrameSpeedVector.x, 0, 0);
 
                     if (lastFrameSpeedVector.x < 0)
                     {
@@ -136,9 +112,10 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
                 }
             }
 
-            //滑落造成的惯性
+            //（在斜面、冰面）滑落造成的惯性
             if (horizontalInputSpeed == 0 && lastFrameSpeedVector.x == 0)
             {
+                //要判断角色的朝向和滑落方向是否一致。（若不判断，会出现对着斜面跳起后，被反弹回来的情况）
                 if (role.moveProc.faceLeft && role.slideProc.slideVector.x < 0)
                 {
                     lastFrameSpeedVector.x = role.slideProc.slideVector.x * inertiaSlide;
@@ -147,16 +124,11 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
                 {
                     lastFrameSpeedVector.x = role.slideProc.slideVector.x * inertiaSlide;
                 }
-            }
-
-
-
+            }            
         }
-
-
     }
 
-    void KeepMoving()
+    void CalculateMoving()
     {
         //转向---------------------------begin
         if (horizontalInputSpeed == 0)
@@ -173,9 +145,6 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         }
         //转向---------------------------end
 
-        //MoveCheck();
-
-
         float _moveDis = 0;
         //计算移动距离（如果按左右方向键，则设置速度，否则速度递减）
         if (horizontalInputSpeed != 0)
@@ -183,20 +152,6 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
             float horizontalFinal = horizontalInputSpeed / (turnCount * turnLoss + 1);
             _moveDis = horizontalFinal * role.deltaTime * moveSpeed;
         }
-        //else if (horizontalExternalSpeed != 0)
-        //{
-        //    //外力重置为0
-        //    if (role.groundDct.isClosedGround && role.groundDct.disGround < FallProcess.ignoreDisGround)
-        //    {
-        //        horizontalExternalSpeed = 0;
-        //    }
-        //    if (role.groundDct.IsOnGround() == false && horizontalExternalSpeed != 0)
-        //    {
-        //        Vector3 externalVector = new Vector3(horizontalExternalSpeed, 0, 0);
-        //        //受外力平移
-        //        transform.Translate(externalVector * role.deltaTime * 5f);
-        //    }
-        //}
         else if (lastFrameSpeedVector != Vector3.zero)
         {
             //惯性移动（冰面、大斜面、跳跃到空中）
@@ -206,7 +161,6 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
                 Vector3 inertiaVector = new Vector3(lastFrameSpeedVector.x, 0, 0);
                 //transform.Translate(inertiaVector.normalized * role.deltaTime * inertiaSlide);
                 transform.Translate(inertiaVector * role.deltaTime);
-
             }
         }
 
@@ -224,7 +178,6 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
                 moveVector.x = 1;
             }
 
-
             //如果在空中，则忽视Y轴。不能用isonground是因为太贴近地面时会滑行，必须在接近地面时就把y设为0.
             if (role.groundDct.isClosedGround && role.groundDct.disGround > 0.1f)
             {
@@ -240,6 +193,12 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
             }
         }
     }
+
+    void Moving()
+    {
+
+    }
+
     //自动调整朝向参数
     void AutoFace()
     {

@@ -29,6 +29,8 @@ public class PlayerControl : MonoBehaviour
 
     public void Init()
     {
+        ColliderSize = transform.Find("body").Find("collider").lossyScale;
+
         state = RoleState.Falling;
 
         groundDct = GetComponent<GroundDetect>();
@@ -42,12 +44,6 @@ public class PlayerControl : MonoBehaviour
 
         moveProc = GetComponent<MoveProcess>();
         moveProc.init();
-    }
-
-    // Use this for initialization
-    void Start()
-    {
-        ColliderSize = transform.Find("body").Find("collider").lossyScale;
     }
 
     void BeforeUpdate()
@@ -126,9 +122,8 @@ public class PlayerControl : MonoBehaviour
     {
         //重置为0（因为进传门时会禁用输入，保留进之前的水平input值，必须归0）
         moveProc.horizontalInputSpeed = 0;
-        //moveProc.horizontalExternalSpeed = value;
         moveProc.lastFrameSpeedVector.x = value * transforDoorSpeed;
-        //重置转向次数
+        //重置转向次数（不能重置在空中的时间，因为可能是在空中连续传送）
         moveProc.turnCount = 0;
     }
 

@@ -21,11 +21,6 @@ public class SlideProcess : MonoBehaviour
         role = GetComponent<PlayerControl>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
     public void UpdateByParent()
     {
         //先重置
