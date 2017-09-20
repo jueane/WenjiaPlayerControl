@@ -44,11 +44,11 @@ public class SlideProcess : MonoBehaviour
 
         if (role.groundDct.midNormal.x > 0)
         {
-            slideVector = role.groundDct.groundVector;
+            slideVector = role.groundDct.footVector;
         }
         else if (role.groundDct.midNormal.x < 0)
         {
-            slideVector = -role.groundDct.groundVector;
+            slideVector = -role.groundDct.footVector;
         }
         //Debug.DrawRay(transform.position, slideVector, Color.white);
         if (slideVector != Vector3.zero)

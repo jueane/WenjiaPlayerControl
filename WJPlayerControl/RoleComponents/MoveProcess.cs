@@ -31,7 +31,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
     public float StaySkyTime = 0;
     //惯性的阻力系数
     public float inertiaDrag = 5;
-    
+
     public void init()
     {
         GameManager.Instance.AddRoleListener(this);
@@ -41,7 +41,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
 
         model = transform.Find("body").Find("model");
     }
-    
+
     public void UpdateByParent()
     {
         StaySkyTime += Time.deltaTime;
@@ -124,7 +124,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
                 {
                     lastFrameSpeedVector.x = role.slideProc.slideVector.x * inertiaSlide;
                 }
-            }            
+            }
         }
     }
 
@@ -145,12 +145,30 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         }
         //转向---------------------------end
 
-        float _moveDis = 0;
         //计算移动距离（如果按左右方向键，则设置速度，否则速度递减）
         if (horizontalInputSpeed != 0)
         {
-            float horizontalFinal = horizontalInputSpeed / (turnCount * turnLoss + 1);
-            _moveDis = horizontalFinal * role.deltaTime * moveSpeed;
+            //获取脚向量
+            Vector3 footVector = role.groundDct.footVector;
+            //归一是为了防止特别长的移动向量。
+            footVector.Normalize();
+
+            //在空中时的必要条件！！！
+            if (role.groundDct.isClosedGround && role.groundDct.disGround > 0.1f)
+            {
+                //1.将x轴赋值为1，是为了防止平移时的卡顿（比如之前的bug:从倾斜的台子落下，向量会从水平变为斜向下，水平速度会突然变慢）         
+                //2.但是在斜面上跑的时候会很快。应该判断是否在空中，在空中才设置成1。
+                footVector.x = 1;
+                //如果在空中，则忽视Y轴。不能用isonground是因为太贴近地面时会滑行，必须在接近地面时就把y设为0.
+                footVector.y = 0;
+            }
+
+            //转向损耗
+            float speedLoss = (turnCount * turnLoss + 1);
+            float _moveDis = moveSpeed * role.deltaTime * horizontalInputSpeed / speedLoss;
+
+            Vector3 moveVector = footVector * _moveDis;
+            Moving(moveVector);
         }
         else if (lastFrameSpeedVector != Vector3.zero)
         {
@@ -158,45 +176,20 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
             if (role.groundDct.IsOnGround() == false)
             {
                 //注意：惯性不能使用Y值。否则会影响跳跃高度，甚至穿越地面。
-                Vector3 inertiaVector = new Vector3(lastFrameSpeedVector.x, 0, 0);
-                //transform.Translate(inertiaVector.normalized * role.deltaTime * inertiaSlide);
-                transform.Translate(inertiaVector * role.deltaTime);
+                Vector3 inertiaVector = new Vector3(lastFrameSpeedVector.x, 0, 0) * role.deltaTime;
+                Moving(inertiaVector);
             }
         }
 
-        //进行左右移动（有速度时才移动）
-        if (_moveDis != 0)
-        {
-            Vector3 moveVector = role.groundDct.groundVector;
-            //归一是为了防止特别长的移动向量。
-            moveVector.Normalize();
-            //1.重新将x轴赋值为1，是为了防止平移时的卡顿（比如之前的bug:从倾斜的台子落下，向量会从水平变为斜向下，水平速度会突然变慢）            
-            //moveVector.x = 1;
-            //2.再次修改。下落没有问题，但是在斜面上跑的时候会很快。应该判断是否在空中，在空中才设置成1。
-            if (role.groundDct.isClosedGround && role.groundDct.disGround > 0.1f)
-            {
-                moveVector.x = 1;
-            }
-
-            //如果在空中，则忽视Y轴。不能用isonground是因为太贴近地面时会滑行，必须在接近地面时就把y设为0.
-            if (role.groundDct.isClosedGround && role.groundDct.disGround > 0.1f)
-            {
-                moveVector.y = 0;
-            }
-            if (_moveDis < 0 && movDct.moveToLeft)
-            {
-                transform.Translate(moveVector * _moveDis, Space.World);
-            }
-            if (_moveDis > 0 && movDct.moveToRight)
-            {
-                transform.Translate(moveVector * _moveDis, Space.World);
-            }
-        }
     }
 
-    void Moving()
+    void Moving(Vector3 moveVector)
     {
-
+        //判断该方向是否可以移动
+        if ((moveVector.x < 0 && movDct.moveToLeft) || (moveVector.x > 0 && movDct.moveToRight))
+        {
+            transform.Translate(moveVector);
+        }
     }
 
     //自动调整朝向参数
@@ -219,8 +212,6 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         {
             model.transform.Rotate(Vector3.up, 180);
         }
-        //model.rotation = Quaternion.Euler(new Vector3(model.rotation.eulerAngles.x, 180, model.rotation.eulerAngles.z));
-        //faceLeft = true;
     }
     public void TurnRight()
     {
@@ -230,8 +221,6 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         {
             model.transform.Rotate(Vector3.down, 180);
         }
-        //model.rotation = Quaternion.Euler(new Vector3(model.rotation.eulerAngles.x, 0, model.rotation.eulerAngles.z));
-        //faceLeft = false;
     }
 
     //重置惯性

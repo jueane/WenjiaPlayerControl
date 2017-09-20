@@ -43,11 +43,11 @@ public class MoveDetect : MonoBehaviour
         //不能向上移动的时，也禁止向左上、右上移动。
         if (moveToUp == false)
         {
-            if (groundDct.groundVector.y > 0)
+            if (groundDct.footVector.y > 0)
             {
                 moveToRight = false;
             }
-            else if (groundDct.groundVector.y < 0)
+            else if (groundDct.footVector.y < 0)
             {
                 moveToLeft = false;
             }

@@ -39,12 +39,12 @@ public class PositionAdjust : MonoBehaviour
             return;
         }
         //右俯，且角度过大，则不处理。
-        if (role.groundDct.groundVector.y < 0 && role.groundDct.isHitRight == false && role.groundDct.slope > role.maxFrictionSlope)
+        if (role.groundDct.footVector.y < 0 && role.groundDct.isHitRight == false && role.groundDct.slope > role.maxFrictionSlope)
         {
             return;
         }
         //左俯，且角度过大，则不处理。
-        if (role.groundDct.groundVector.y > 0 && role.groundDct.isHitLeft == false && role.groundDct.slope > role.maxFrictionSlope)
+        if (role.groundDct.footVector.y > 0 && role.groundDct.isHitLeft == false && role.groundDct.slope > role.maxFrictionSlope)
         {
             return;
         }

@@ -29,7 +29,7 @@ public class GroundDetect : MonoBehaviour
     Vector3 pR;
 
     //检测到的地面向量
-    public Vector3 groundVector;
+    public Vector3 footVector;
 
     public Vector3 midNormal;
 
@@ -86,7 +86,7 @@ public class GroundDetect : MonoBehaviour
         origin = transform.position + new Vector3(0, offsetY, 0);
 
         //初始化数值
-        groundVector = Vector3.zero;
+        footVector = Vector3.zero;
         midNormal = Vector3.zero;
         slopeLeft = 0;
         slopeRight = 0;
@@ -151,8 +151,8 @@ public class GroundDetect : MonoBehaviour
         {
             Debug.DrawLine(pL, pR, Color.cyan);
             //检测到的与地面平行的向量
-            groundVector = pR - pL;
-            midNormal = new Vector3(-groundVector.y, groundVector.x, 0);
+            footVector = pR - pL;
+            midNormal = new Vector3(-footVector.y, footVector.x, 0);
         }
 
         //一个命中，一个未命中
@@ -161,15 +161,15 @@ public class GroundDetect : MonoBehaviour
             if (isHitLeft)
             {
                 //单脚命中的正常情况。（命中侧水平或向上倾斜）
-                groundVector = new Vector3(hitLeft.normal.y, -hitLeft.normal.x, 0);
-                Debug.DrawRay(pL, groundVector, Color.red);
+                footVector = new Vector3(hitLeft.normal.y, -hitLeft.normal.x, 0);
+                Debug.DrawRay(pL, footVector, Color.red);
                 midNormal = hitLeft.normal;
             }
             else if (isHitRight)
             {
                 //单脚命中的正常情况。（命中侧水平或向上倾斜）
-                groundVector = new Vector3(hitRight.normal.y, -hitRight.normal.x, 0);
-                Debug.DrawRay(pR, groundVector, Color.cyan);
+                footVector = new Vector3(hitRight.normal.y, -hitRight.normal.x, 0);
+                Debug.DrawRay(pR, footVector, Color.cyan);
                 midNormal = hitRight.normal;
 
 
@@ -190,7 +190,7 @@ public class GroundDetect : MonoBehaviour
         //全未命中
         if (isHitLeft == false && isHitRight == false)
         {
-            groundVector = Vector3.right;
+            footVector = Vector3.right;
             midNormal = Vector3.up;
             isClosedGround = false;
         }
@@ -198,7 +198,7 @@ public class GroundDetect : MonoBehaviour
         {
             isClosedGround = true;
         }
-        groundVector.Normalize();
+        footVector.Normalize();
 
         //检测到的地面方向
         //Debug.DrawRay(transform.position, groundVector * 5, Color.green);
@@ -271,13 +271,13 @@ public class GroundDetect : MonoBehaviour
         if (role.state != RoleState.Raising && role.isFloating == false && isHitLeft && isHitRight && slope < maxRotation && ((isHitLeft && slopeLeft < maxRotation) || (isHitRight && slopeRight < maxRotation)))
         {
             //慢慢旋转
-            Vector3 to = Vector3.Lerp(body.right, groundVector, rotationSpeed);
+            Vector3 to = Vector3.Lerp(body.right, footVector, rotationSpeed);
             to = new Vector3(to.x, to.y, 0);
             body.right = to;
 
             //角色体向上的法线
-            midNormal.x = -groundVector.y;
-            midNormal.y = groundVector.x;
+            midNormal.x = -footVector.y;
+            midNormal.y = footVector.x;
         }
         else
         {
