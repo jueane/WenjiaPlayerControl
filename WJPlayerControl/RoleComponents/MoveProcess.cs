@@ -1,6 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+//-----------惯性重置说明-------
+//重置点：复活重置、落地重置、跳起重置、传送重置（不是归0，其它都是归0）、左右转向重置。
+//-----------------------------
+//-----------输入的空中转身损耗重置说明-------
+//重置点：复活重置、落地重置、跳起重置、传送重置。
+//-----------------------------
+
 public class MoveProcess : MonoBehaviour, GameManagerRoleListener
 {
     PlayerControl role;
@@ -231,7 +238,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         if (model.transform.rotation.eulerAngles.y < 90)
         {
             model.transform.Rotate(Vector3.up, 180);
-            inputTime = 0;
+            ResetInertia();
         }
     }
     public void TurnRight()
@@ -241,7 +248,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         if (model.transform.rotation.eulerAngles.y > 90)
         {
             model.transform.Rotate(Vector3.down, 180);
-            inputTime = 0;
+            ResetInertia();
         }
     }
 
