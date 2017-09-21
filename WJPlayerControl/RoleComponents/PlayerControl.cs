@@ -123,8 +123,9 @@ public class PlayerControl : MonoBehaviour
         //重置为0（因为进传门时会禁用输入，保留进之前的水平input值，必须归0）
         moveProc.horizontalInputSpeed = 0;
         moveProc.lastFrameSpeedVector.x = value * transforDoorSpeed;
-        //重置转向次数（不能重置在空中的时间，因为可能是在空中连续传送）
+        //重置转向次数
         moveProc.turnCount = 0;
+        moveProc.inputTime = 0;
     }
 
     public void Kill()

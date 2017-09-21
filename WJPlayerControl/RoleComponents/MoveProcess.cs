@@ -9,28 +9,34 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
 
     public bool faceLeft = false;
 
-    //平移速度
+    //--------------1.正在进行输入力移动
+    public bool isInputMoving;
+    //平移速度系数
     public float moveSpeed = 5;
     //水平输入速度
     public float horizontalInputSpeed = 0;
     //水平外部施加速度
     public float horizontalExternalSpeed = 0;
+    //输入力：空中转向次数
+    public int turnCount = 0;
+    //输入力：空中转向每次损耗
+    public float turnLoss = 0.3f;
+    //-----------------------------------    
 
+    //--------------2.正在进行惯性移动
+    public bool isInertiaMoving;
     //上一帧角色的移动方向
     public Vector3 lastFrameSpeedVector;
-    //空中跳跃的水平惯性
+    //空中跳跃的水平惯性系数
     public float inertiaInput = 5f;
     //滑落的惯性
     public float inertiaSlide = 5f;
-
-    //空中转向次数
-    public int turnCount = 0;
-    //空中转向每次损耗
-    public float turnLoss = 0.3f;
-    //在空中的累计时间
-    public float StaySkyTime = 0;
-    //惯性的阻力系数
+    //惯性：在空中的累计时间
+    public float inputTime = 0;
+    public float maxInputTime = 0.5f;
+    //惯性：损耗系数
     public float inertiaDrag = 5;
+    //-----------------------------------
 
     public void init()
     {
@@ -44,7 +50,6 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
 
     public void UpdateByParent()
     {
-        StaySkyTime += Time.deltaTime;
         movDct.UpdateByParent();
         CalculateMoving();
     }
@@ -91,11 +96,13 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
                 //输入速度接近满值才有惯性。
                 if (Mathf.Abs(horizontalInputSpeed) >= 0.9f)
                 {
-                    lastFrameSpeedVector.x = horizontalInputSpeed * inertiaInput / (turnCount * turnLoss + 1);
+                    //lastFrameSpeedVector.x = horizontalInputSpeed * inertiaInput / (turnCount * turnLoss + 1);
+                    lastFrameSpeedVector.x = horizontalInputSpeed * inertiaInput * inputTime;
 
                     if (lastFrameSpeedVector.x < 0)
                     {
-                        lastFrameSpeedVector.x += StaySkyTime * inertiaDrag;
+                        //lastFrameSpeedVector.x += StaySkyTime * inertiaDrag;
+                        //lastFrameSpeedVector.x += inertiaDrag;
                         if (lastFrameSpeedVector.x > 0)
                         {
                             lastFrameSpeedVector.x = 0;
@@ -103,7 +110,8 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
                     }
                     else if (lastFrameSpeedVector.x > 0)
                     {
-                        lastFrameSpeedVector.x -= StaySkyTime * inertiaDrag;
+                        //lastFrameSpeedVector.x -= StaySkyTime * inertiaDrag;
+                        //lastFrameSpeedVector.x -= inertiaDrag;
                         if (lastFrameSpeedVector.x < 0)
                         {
                             lastFrameSpeedVector.x = 0;
@@ -137,17 +145,24 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         }
         else if (horizontalInputSpeed > 0)
         {
+            inputTime += Time.deltaTime;
             TurnRight();
         }
         else if (horizontalInputSpeed < 0)
         {
+            inputTime += Time.deltaTime;
             TurnLeft();
         }
         //转向---------------------------end
 
+        isInputMoving = false;
+        isInertiaMoving = false;
+
         //计算移动距离（如果按左右方向键，则设置速度，否则速度递减）
         if (horizontalInputSpeed != 0)
         {
+            isInputMoving = true;
+
             //获取脚向量
             Vector3 footVector = role.groundDct.footVector;
             //归一是为了防止特别长的移动向量。
@@ -175,7 +190,14 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
             //惯性移动（冰面、大斜面、跳跃到空中）
             if (role.groundDct.IsOnGround() == false)
             {
+                isInertiaMoving = true;
+
                 //注意：惯性不能使用Y值。否则会影响跳跃高度，甚至穿越地面。
+                if (inputTime > maxInputTime)
+                {
+                    inputTime = maxInputTime;
+                }
+
                 Vector3 inertiaVector = new Vector3(lastFrameSpeedVector.x, 0, 0) * role.deltaTime;
                 Moving(inertiaVector);
             }
@@ -211,6 +233,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         if (model.transform.rotation.eulerAngles.y < 90)
         {
             model.transform.Rotate(Vector3.up, 180);
+            inputTime = 0;
         }
     }
     public void TurnRight()
@@ -220,6 +243,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         if (model.transform.rotation.eulerAngles.y > 90)
         {
             model.transform.Rotate(Vector3.down, 180);
+            inputTime = 0;
         }
     }
 
@@ -228,7 +252,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
     {
         lastFrameSpeedVector = Vector3.zero;
         turnCount = 0;
-        StaySkyTime = 0;
+        inputTime = 0;
     }
 
     public void PlayerDead()

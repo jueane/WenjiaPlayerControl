@@ -41,7 +41,6 @@ public class SlideProcess : MonoBehaviour
     void Sliding()
     {
         //注意！！不能加这个判断（state == RoleState.Grounded），加上会顿挫。
-
         if (role.groundDct.midNormal.x > 0)
         {
             slideVector = role.groundDct.footVector;
@@ -50,7 +49,7 @@ public class SlideProcess : MonoBehaviour
         {
             slideVector = -role.groundDct.footVector;
         }
-        //Debug.DrawRay(transform.position, slideVector, Color.white);
+
         if (slideVector != Vector3.zero)
         {
             slideVector.Normalize();
@@ -59,19 +58,7 @@ public class SlideProcess : MonoBehaviour
         if (role.groundDct.IsOnIceground())
         {
             //print("下滑.冰面");
-
             Vector3 slideOnIceVec = slideVector;
-            //如果滑落方向是向左，则改为向右。
-            //if (slideOnIceVec.x < 0)
-            //{
-            //    slideOnIceVec.x = -slideVector.x;
-            //    slideOnIceVec.y = -slideVector.y;
-            //}
-            //else if (slideOnIceVec.x == 0)
-            //{
-            //    //如果在水平冰面上，则强制使滑行速度为0.5f。
-            //    slideOnIceVec.x = 0.5f;
-            //}
             transform.Translate(slideOnIceVec.normalized * slideSpeedOnIce * role.deltaTime, Space.World);
         }
         else if (role.groundDct.IsOnGround())
@@ -95,14 +82,12 @@ public class SlideProcess : MonoBehaviour
                         Physics.Raycast(transform.position, new Vector3(1f, -1, 0), out hitMid, LayerMask.GetMask("ground"));
 
                         float angle = Vector3.Angle(hitMid.normal, Vector3.up);
-
                         if (angle >= 45)
                         {
                             transform.Translate(slideVector.normalized * slideSpeed * 1f * role.deltaTime, Space.World);
 
                             isSliding = true;
                         }
-
                     }
                     else if (role.groundDct.midNormal.x > 0)
                     {
@@ -111,16 +96,13 @@ public class SlideProcess : MonoBehaviour
                         Physics.Raycast(transform.position, new Vector3(-1f, -1, 0), out hitMid, LayerMask.GetMask("ground"));
 
                         float angle = Vector3.Angle(hitMid.normal, Vector3.up);
-
                         if (angle >= 45)
                         {
                             transform.Translate(slideVector.normalized * slideSpeed * 1f * role.deltaTime, Space.World);
 
                             isSliding = true;
                         }
-
                     }
-
                 }
             }
 
