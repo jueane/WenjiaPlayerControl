@@ -397,6 +397,7 @@ public class GroundDetect : MonoBehaviour
     public void OnStandGround()
     {
         role.moveProc.ResetInertia();
+        role.moveProc.ResetTurnLoss();
     }
 
     bool SingleFootDetect(Vector3 originPos, out RaycastHit hitinfo)

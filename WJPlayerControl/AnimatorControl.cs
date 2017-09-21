@@ -70,7 +70,7 @@ public class AnimatorControl : MonoBehaviour
 
 
 
-        bool idle = _player.groundDct.IsOnGround() && _player.groundDct.slope < _player.maxFrictionSlope && _player.moveProc.lastFrameSpeedVector == Vector3.zero && _player.moveProc.horizontalExternalSpeed == 0 && _player.moveProc.horizontalInputSpeed == 0;
+        bool idle = _player.groundDct.IsOnGround() && _player.groundDct.slope < _player.maxFrictionSlope && _player.moveProc.lastFrameSpeedVector == Vector3.zero && _player.moveProc.horizontalInputSpeed == 0;
 
         idleActionIndex = 0;
         if (idle)

@@ -98,7 +98,8 @@ public class JumpProcess : MonoBehaviour
 
                     //重置惯性
                     role.moveProc.ResetInertia();
-
+                    role.moveProc.ResetTurnLoss();
+                    
                     _JumpInTheSky(jumpSpeed, true);
                 }
                 //注意：onIceGround此处属于特殊情况。。。。

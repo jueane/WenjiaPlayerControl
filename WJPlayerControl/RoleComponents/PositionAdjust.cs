@@ -48,7 +48,7 @@ public class PositionAdjust : MonoBehaviour
         {
             return;
         }
-        if (role.moveProc.horizontalInputSpeed!=0||role.moveProc.horizontalExternalSpeed!=0||role.moveProc.lastFrameSpeedVector!=Vector3.zero)
+        if (role.moveProc.horizontalInputSpeed!=0||role.moveProc.lastFrameSpeedVector!=Vector3.zero)
         {
             return;
         }

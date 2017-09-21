@@ -15,8 +15,6 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
     public float moveSpeed = 5;
     //水平输入速度
     public float horizontalInputSpeed = 0;
-    //水平外部施加速度
-    public float horizontalExternalSpeed = 0;
     //输入力：空中转向次数
     public int turnCount = 0;
     //输入力：空中转向每次损耗
@@ -247,11 +245,15 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         }
     }
 
+    //重置转向损耗
+    public void ResetTurnLoss()
+    {
+        turnCount = 0;
+    }
     //重置惯性
     public void ResetInertia()
     {
         lastFrameSpeedVector = Vector3.zero;
-        turnCount = 0;
         inputTime = 0;
     }
 
@@ -262,8 +264,8 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
     public void PlayerRespawn()
     {
         horizontalInputSpeed = 0;
-        horizontalExternalSpeed = 0;
-        //重置惯性
+
+        ResetTurnLoss();
         ResetInertia();
     }
 }

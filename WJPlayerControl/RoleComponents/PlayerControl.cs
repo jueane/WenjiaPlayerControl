@@ -122,10 +122,10 @@ public class PlayerControl : MonoBehaviour
     {
         //重置为0（因为进传门时会禁用输入，保留进之前的水平input值，必须归0）
         moveProc.horizontalInputSpeed = 0;
+        //设置惯性
         moveProc.lastFrameSpeedVector.x = value * transforDoorSpeed;
-        //重置转向次数
-        moveProc.turnCount = 0;
-        moveProc.inputTime = 0;
+        //重置转向损耗
+        moveProc.ResetTurnLoss();
     }
 
     public void Kill()
