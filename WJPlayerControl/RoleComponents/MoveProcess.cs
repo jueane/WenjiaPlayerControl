@@ -238,6 +238,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         if (model.transform.rotation.eulerAngles.y < 90)
         {
             model.transform.Rotate(Vector3.up, 180);
+            //转身时重置惯性
             ResetInertia();
         }
     }
@@ -248,6 +249,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         if (model.transform.rotation.eulerAngles.y > 90)
         {
             model.transform.Rotate(Vector3.down, 180);
+            //转身时重置惯性
             ResetInertia();
         }
     }
