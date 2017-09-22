@@ -8,7 +8,7 @@ public class FallProcess : MonoBehaviour
 
     PlayerControl role;
 
-    public GroundDetect groundDct;
+    GroundDetect groundDct;
 
     //下落速度
     public float fallSpeed = 0;
@@ -62,10 +62,8 @@ public class FallProcess : MonoBehaviour
                 role.state = RoleState.Falling;
             }
 
-            bool standOnGround = groundDct.IsStandable() && groundDct.IsOnGround();
-            bool standOnIceGround = groundDct.IsStandable() && groundDct.IsOnIceground();
-
-            if (standOnGround)
+            //平稳落于地面（在不可站立的斜面时，属于Falling状态）
+            if (groundDct.IsStandable() && groundDct.IsOnGround())
             {
                 //事件通知：平稳落于地面
                 if (role.state != RoleState.Grounded)
@@ -73,13 +71,6 @@ public class FallProcess : MonoBehaviour
                     role.state = RoleState.Grounded;
                     role.groundDct.OnStandGround();
                 }
-            }
-            else if (standOnIceGround)
-            {
-                //落于冰面。【不能加role.state = RoleState.Grounded这句，否则不会继续下落】
-                //fallSpeed = 4;//必须保证在接近冰面时能够继续下落，以帖合冰面，因此不能归0。
-                //role.moveProc.ResetInertia();
-                //role.moveProc.ResetTurnLoss();
             }
         }
     }
