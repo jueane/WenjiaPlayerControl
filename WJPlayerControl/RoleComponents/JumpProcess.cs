@@ -23,7 +23,7 @@ public class JumpProcess : MonoBehaviour
     public float jumpHigher = 0.55f;
     //上升衰减速度
     public float jumpAttenuation = 13;
-    
+
     public void init()
     {
         role = GetComponent<PlayerControl>();
@@ -88,8 +88,10 @@ public class JumpProcess : MonoBehaviour
                     //print("跳1");
                     if (groundDct.timeStand > groundDct.minTimeStand)
                     {
-                        _JumpOnGround(jumpSpeed);
+                        //记录滑落方向
+                        role.moveProc.lastSlideVector = role.slideProc.slideVector;
 
+                        _JumpOnGround(jumpSpeed);
                     }
                 }
                 else if (remainJumpTimes > 0)
@@ -97,9 +99,12 @@ public class JumpProcess : MonoBehaviour
                     //print("跳2");
 
                     //重置惯性
-                    role.moveProc.ResetInertia();
+                    //role.moveProc.ResetInertia();
                     role.moveProc.ResetTurnLoss();
-                    
+
+                    //记录滑落方向
+                    role.moveProc.lastSlideVector = role.slideProc.slideVector;
+
                     _JumpInTheSky(jumpSpeed, true);
                 }
                 //注意：onIceGround此处属于特殊情况。。。。
@@ -217,9 +222,17 @@ public class JumpProcess : MonoBehaviour
             if (role.state == RoleState.Raising)
             {
                 role.state = RoleState.Falling;
-                role.fallProc.fallSpeed = 0;
+
+                //触发下落事件。
+                OnBeginFalling();
             }
         }
+    }
+
+    //事件：开始下落
+    void OnBeginFalling()
+    {
+        role.fallProc.fallSpeed = 0;
     }
 
 

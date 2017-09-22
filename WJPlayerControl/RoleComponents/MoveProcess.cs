@@ -2,10 +2,10 @@
 using System.Collections;
 
 //-----------惯性重置说明-------
-//重置点：复活重置、落地重置、跳起重置、传送重置（不是归0，其它都是归0）、左右转向重置。
+//重置点：复活重置、落地重置、跳起重置、在力场重置、传送重置（不是归0，其它都是归0）、左右转向重置。
 //-----------------------------
 //-----------输入的空中转身损耗重置说明-------
-//重置点：复活重置、落地重置、跳起重置、传送重置。
+//重置点：复活重置、落地重置、跳起重置、在力场重置、传送重置。
 //-----------------------------
 
 public class MoveProcess : MonoBehaviour, GameManagerRoleListener
@@ -19,7 +19,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
     //--------------1.正在进行输入力移动
     public bool isInputMoving;
     //平移速度系数
-    public float moveSpeed = 5;
+    public float moveSpeed = 5.1f;
     //水平输入速度
     public float horizontalInputSpeed = 0;
     //输入力：空中转向次数
@@ -39,9 +39,8 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
     //惯性：在空中的累计时间
     public float inputTime = 0;
     public float maxInputTime = 0.5f;
-    //惯性：损耗系数
-    public float inertiaDrag = 5;
     //-----------------------------------
+    public Vector2 lastSlideVector;
 
     public void init()
     {
@@ -62,22 +61,24 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
     //帧结束时，设置惯性。
     void LateUpdate()
     {
-        if (role.isFloating || GameManager.Instance.playerIsDead)
+        if (role.isFloating)
         {
+            ResetTurnLoss();
             ResetInertia();
             return;
         }
 
-        if (role.groundDct.IsOnGround())
-        {
-            lastFrameSpeedVector = Vector3.zero;
-        }
-        else if (role.groundDct.isClosedGround && role.groundDct.disGround <= 0.2f)
-        {
-            //要判断陷入地面的情况。
-            lastFrameSpeedVector = Vector3.zero;
-        }
-        else if (role.groundDct.isClosedGround == false || (role.groundDct.isClosedGround && role.groundDct.disGround > 0.2f))
+        //if (role.groundDct.IsOnGround())
+        //{
+        //    lastFrameSpeedVector = Vector3.zero;
+        //}
+        //else if (role.groundDct.isClosedGround && role.groundDct.disGround <= 0.2f)
+        //{
+        //    //要判断陷入地面的情况。
+        //    lastFrameSpeedVector = Vector3.zero;
+        //}
+
+        if (role.groundDct.isClosedGround == false || (role.groundDct.isClosedGround && role.groundDct.disGround > 0.2f))
         {
             //输入力造成的惯性
             if (horizontalInputSpeed != 0)
@@ -101,13 +102,10 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
                 //输入速度接近满值才有惯性。
                 if (Mathf.Abs(horizontalInputSpeed) >= 0.9f)
                 {
-                    //lastFrameSpeedVector.x = horizontalInputSpeed * inertiaInput / (turnCount * turnLoss + 1);
                     lastFrameSpeedVector.x = horizontalInputSpeed * inertiaInput * inputTime;
 
                     if (lastFrameSpeedVector.x < 0)
                     {
-                        //lastFrameSpeedVector.x += StaySkyTime * inertiaDrag;
-                        //lastFrameSpeedVector.x += inertiaDrag;
                         if (lastFrameSpeedVector.x > 0)
                         {
                             lastFrameSpeedVector.x = 0;
@@ -115,8 +113,6 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
                     }
                     else if (lastFrameSpeedVector.x > 0)
                     {
-                        //lastFrameSpeedVector.x -= StaySkyTime * inertiaDrag;
-                        //lastFrameSpeedVector.x -= inertiaDrag;
                         if (lastFrameSpeedVector.x < 0)
                         {
                             lastFrameSpeedVector.x = 0;
@@ -129,15 +125,20 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
             if (horizontalInputSpeed == 0 && lastFrameSpeedVector.x == 0)
             {
                 //要判断角色的朝向和滑落方向是否一致。（若不判断，会出现对着斜面跳起后，被反弹回来的情况）
-                if (role.moveProc.faceLeft && role.slideProc.slideVector.x < 0)
+                if (role.moveProc.faceLeft && lastSlideVector.x < 0)
                 {
-                    lastFrameSpeedVector.x = role.slideProc.slideVector.x * inertiaSlide;
+                    lastFrameSpeedVector.x = lastSlideVector.x * inertiaSlide;
                 }
-                else if (role.moveProc.faceLeft == false && role.slideProc.slideVector.x > 0)
+                else if (role.moveProc.faceLeft == false && lastSlideVector.x > 0)
                 {
-                    lastFrameSpeedVector.x = role.slideProc.slideVector.x * inertiaSlide;
+                    lastFrameSpeedVector.x = lastSlideVector.x * inertiaSlide;
                 }
             }
+        }
+
+        if (Input.GetKey(KeyCode.V))
+        {
+            transform.position = GameObject.Find("TargetPosAA").transform.position;
         }
     }
 
@@ -151,11 +152,19 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         else if (horizontalInputSpeed > 0)
         {
             inputTime += Time.deltaTime;
+            if (inputTime > maxInputTime)
+            {
+                inputTime = maxInputTime;
+            }
             TurnRight();
         }
         else if (horizontalInputSpeed < 0)
         {
             inputTime += Time.deltaTime;
+            if (inputTime > maxInputTime)
+            {
+                inputTime = maxInputTime;
+            }
             TurnLeft();
         }
         //转向---------------------------end
@@ -196,13 +205,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
             if (role.groundDct.IsOnGround() == false)
             {
                 isInertiaMoving = true;
-
                 //注意：惯性不能使用Y值。否则会影响跳跃高度，甚至穿越地面。
-                if (inputTime > maxInputTime)
-                {
-                    inputTime = maxInputTime;
-                }
-
                 Vector3 inertiaVector = new Vector3(lastFrameSpeedVector.x, 0, 0) * role.deltaTime;
                 Moving(inertiaVector);
             }
@@ -262,6 +265,7 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
     //重置惯性
     public void ResetInertia()
     {
+        lastSlideVector = Vector2.zero;
         lastFrameSpeedVector = Vector3.zero;
         inputTime = 0;
     }

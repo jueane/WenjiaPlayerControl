@@ -3,6 +3,8 @@ using System.Collections;
 
 public class SlideProcess : MonoBehaviour
 {
+    public bool debug;
+
     PlayerControl role;
 
     //滑落速度
@@ -11,7 +13,7 @@ public class SlideProcess : MonoBehaviour
     public float slideSpeedOnIce = 8.75f;
     //滑落方向（取平衡向量的垂直向量）
     public Vector3 slideVector;
-
+    
     //是否可站住脚
     public bool isSliding;
 
@@ -36,10 +38,16 @@ public class SlideProcess : MonoBehaviour
         {
             Sliding();
         }
+
+        if (debug)
+        {
+            Debug.DrawRay(transform.position + Vector3.up, slideVector, Color.cyan);
+        }
     }
     //滑落（在斜度过大的坡上）
     void Sliding()
     {
+        //水平冰面暂不考虑
         //注意！！不能加这个判断（state == RoleState.Grounded），加上会顿挫。
         if (role.groundDct.midNormal.x > 0)
         {
@@ -48,6 +56,10 @@ public class SlideProcess : MonoBehaviour
         else if (role.groundDct.midNormal.x < 0)
         {
             slideVector = -role.groundDct.footVector;
+        }
+        else
+        {
+            print("平");
         }
 
         if (slideVector != Vector3.zero)
@@ -60,6 +72,7 @@ public class SlideProcess : MonoBehaviour
             //print("下滑.冰面");
             Vector3 slideOnIceVec = slideVector;
             transform.Translate(slideOnIceVec.normalized * slideSpeedOnIce * role.deltaTime, Space.World);
+            isSliding = true;
         }
         else if (role.groundDct.IsOnGround())
         {

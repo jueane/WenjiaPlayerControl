@@ -99,15 +99,6 @@ public class PlayerControl : MonoBehaviour
         }
 
         groundDct.UpdateByParent();
-
-        //设置是否飘浮
-        // SetIsFloating();
-    }
-
-    public void SetIsFloating()
-    {
-        isFloating = Physics.CheckBox(transform.position, ColliderSize / 2, Quaternion.identity, LayerMask.GetMask("Floating"));
-
     }
 
     //输入力

@@ -301,10 +301,6 @@ public class GroundDetect : MonoBehaviour
     {
         if (isClosedGround && disGround == 0)
         {
-            if (IsStandable())
-            {
-                OnStandGround();
-            }
             return true;
         }
         return false;
@@ -321,17 +317,6 @@ public class GroundDetect : MonoBehaviour
             return true;
         }
         return false;
-    }
-
-    float GetSlope(Vector3 vec)
-    {
-        float angle = Vector3.Angle(vec, Vector3.up);
-        if (vec.x == 0)
-        {
-            angle = 0;
-        }
-        float slopeT = angle / 90;
-        return slopeT;
     }
 
     //普通跳条件
@@ -382,22 +367,20 @@ public class GroundDetect : MonoBehaviour
                         return true;
                     }
                 }
-
             }
-
         }
-
-
-
-
         return false;
     }
 
     //当站稳于地面时调一次此方法。
     public void OnStandGround()
     {
+        print("落于地面");
         role.moveProc.ResetInertia();
         role.moveProc.ResetTurnLoss();
+
+        //重置下落速度
+        role.fallProc.fallSpeed = 0;
     }
 
     bool SingleFootDetect(Vector3 originPos, out RaycastHit hitinfo)
@@ -446,5 +429,16 @@ public class GroundDetect : MonoBehaviour
             return true;
         }
 
+    }
+
+    float GetSlope(Vector3 vec)
+    {
+        float angle = Vector3.Angle(vec, Vector3.up);
+        if (vec.x == 0)
+        {
+            angle = 0;
+        }
+        float slopeT = angle / 90;
+        return slopeT;
     }
 }

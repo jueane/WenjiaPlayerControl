@@ -31,6 +31,14 @@ public class FallProcess : MonoBehaviour
             return;
         }
 
+        //下落前检查并设置状态
+        CheckBeforeFalling();
+
+        Falling();
+    }
+
+    void CheckBeforeFalling()
+    {
         //非上升阶段，处理状态
         if (role.state != RoleState.Raising)
         {
@@ -39,6 +47,9 @@ public class FallProcess : MonoBehaviour
                 //从平台跌落。还可以跳2次。
                 if (role.state == RoleState.Grounded)
                 {
+                    //记录滑落方向
+                    role.moveProc.lastSlideVector = role.slideProc.slideVector;
+
                     if (role.jumpProc.multijump)
                     {
                         role.jumpProc.remainJumpTimes = 2;
@@ -50,28 +61,27 @@ public class FallProcess : MonoBehaviour
                 }
                 role.state = RoleState.Falling;
             }
-            if (groundDct.isClosedGround && groundDct.disGround == 0 && groundDct.IsStandable())
+
+            bool standOnGround = groundDct.IsStandable() && groundDct.IsOnGround();
+            bool standOnIceGround = groundDct.IsStandable() && groundDct.IsOnIceground();
+
+            if (standOnGround)
             {
-                if (groundDct.slopeLeft < role.maxFrictionSlope && groundDct.slopeRight < role.maxFrictionSlope)
+                //事件通知：平稳落于地面
+                if (role.state != RoleState.Grounded)
                 {
                     role.state = RoleState.Grounded;
-                    fallSpeed = 0;
+                    role.groundDct.OnStandGround();
                 }
-                else
-                {
-                    role.state = RoleState.Grounded;
-                }
-                //平稳落于地面
-                //role.groundDct.OnStandGround();
+            }
+            else if (standOnIceGround)
+            {
+                //落于冰面。【不能加role.state = RoleState.Grounded这句，否则不会继续下落】
+                //fallSpeed = 4;//必须保证在接近冰面时能够继续下落，以帖合冰面，因此不能归0。
+                //role.moveProc.ResetInertia();
+                //role.moveProc.ResetTurnLoss();
             }
         }
-
-        Falling();
-
-
-        //GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        //obj.transform.position = transform.position;
-        //obj.transform.localScale = Vector3.one * 0.05f;
     }
 
     void Falling()
