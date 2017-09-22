@@ -375,7 +375,6 @@ public class GroundDetect : MonoBehaviour
     //当站稳于地面时调一次此方法。
     public void OnStandGround()
     {
-        print("落于地面");
         role.moveProc.ResetInertia();
         role.moveProc.ResetTurnLoss();
 
