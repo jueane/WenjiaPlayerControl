@@ -308,10 +308,14 @@ public class GroundDetect : MonoBehaviour
 
     public bool IsOnIceground()
     {
-        if (isHitIce && IsOnGround())
+        if (isHitIce && isClosedGround && disGround < 0.3f)
         {
             return true;
         }
+        //if (isHitIce && IsOnGround())
+        //{
+        //    return true;
+        //}
         if (isHitIce && role.state == RoleState.Falling && disGround < 0.3f)
         {
             return true;

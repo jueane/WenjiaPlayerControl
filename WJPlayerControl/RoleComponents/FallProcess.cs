@@ -42,10 +42,11 @@ public class FallProcess : MonoBehaviour
         //非上升阶段，处理状态
         if (role.state != RoleState.Raising)
         {
+            //在地面以上
             if (groundDct.isClosedGround == false || (groundDct.isClosedGround && groundDct.disGround > 0))
             {
-                //从平台跌落。还可以跳2次。
-                if (role.state == RoleState.Grounded)
+                //如果还是ground状态（从平台跌落。还可以跳2次。）
+                if (role.state == RoleState.Grounded|| role.groundDct.IsOnIceground())
                 {
                     //记录滑落方向
                     role.moveProc.lastSlideVector = role.slideProc.slideVector;

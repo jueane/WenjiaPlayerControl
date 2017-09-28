@@ -3,7 +3,6 @@ using System.Collections;
 
 public class JumpProcess : MonoBehaviour
 {
-
     PlayerControl role;
     MoveDetect movDct;
     GroundDetect groundDct;
@@ -13,8 +12,10 @@ public class JumpProcess : MonoBehaviour
     public bool multijump = false;
     public int remainJumpTimes = 0;
 
+
+    [SerializeField]
     //跳跃条件1，keyDown.
-    bool readyJump = false;
+    private bool readyJump = false;
     //跳跃速度
     public float jumpSpeed = 7;
     //实时速度[跳跃过程中的速度]
@@ -23,6 +24,8 @@ public class JumpProcess : MonoBehaviour
     public float jumpHigher = 0.55f;
     //上升衰减速度
     public float jumpAttenuation = 13;
+
+    RoleState lastRoleState;
 
     public void init()
     {
@@ -47,29 +50,38 @@ public class JumpProcess : MonoBehaviour
             remainJumpTimes = 0;
         }
 
-
         Raise();
+    }
+
+    //从平台跌落时[且还在空中]，设置跳跃次数
+    public void SettingJumpTime()
+    {
+        //必须是非上升阶段。
+        if (role.state != RoleState.Raising)
+        {
+            if (groundDct.isClosedGround == false || (groundDct.isClosedGround && groundDct.disGround > 0))
+            {
+                //从平台跌落。还可以跳2次。
+                if (role.state == RoleState.Grounded)
+                {
+                    if (role.jumpProc.multijump)
+                    {
+                        role.jumpProc.remainJumpTimes = 2;
+                    }
+                    else
+                    {
+                        role.jumpProc.remainJumpTimes = 1;
+                    }
+                }
+                role.state = RoleState.Falling;
+            }
+        }
     }
 
     public void JumpOnGround()
     {
         //从平台跌落，设置三段跳（因为跌落后执行，所以在跌落的那一帧，会没来得及设置三段跳，因此在这也设置一次）
-        if (groundDct.isClosedGround == false || (groundDct.isClosedGround && groundDct.disGround > 0))
-        {
-            //从平台跌落。还可以跳2次。
-            if (role.state == RoleState.Grounded)
-            {
-                if (role.jumpProc.multijump)
-                {
-                    role.jumpProc.remainJumpTimes = 2;
-                }
-                else
-                {
-                    role.jumpProc.remainJumpTimes = 1;
-                }
-            }
-        }
-
+        SettingJumpTime();
 
         //起跳条件1
         if (InputMgr.Instance.catInput.KeyA.WasPressed)
@@ -83,10 +95,10 @@ public class JumpProcess : MonoBehaviour
             if (readyJump)
             {
                 //普通跳或二段跳
-                if (role.groundDct.IsOnGround() && groundDct.IsStandable())
+                if ((role.groundDct.IsOnGround() && groundDct.IsStandable()) || groundDct.IsOnIceground())
                 {
                     //print("跳1");
-                    if (groundDct.timeStand > groundDct.minTimeStand)
+                    if (groundDct.timeStand >= groundDct.minTimeStand)
                     {
                         //记录滑落方向
                         role.moveProc.lastSlideVector = role.slideProc.slideVector;
@@ -96,7 +108,9 @@ public class JumpProcess : MonoBehaviour
                 }
                 else if (remainJumpTimes > 0)
                 {
-                    //print("跳2");
+                    //print("状态：" + role.state + "," + groundDct.disGround + "," + remainJumpTimes);
+
+                    //特别接近地面时，禁止使用二段跳
 
                     //重置惯性
                     //role.moveProc.ResetInertia();
@@ -125,9 +139,9 @@ public class JumpProcess : MonoBehaviour
     //地面跳
     public void _JumpOnGround(float speed)
     {
-        //在地面或贴近地面
-        if (role.groundDct.IsOnGround())
-        {
+        ////在地面或贴近地面
+        //if (role.groundDct.IsOnGround())
+        //{
             bool isCanJump = false;
             //在冰面（此条件属于特殊情况）
             if (role.groundDct.IsOnIceground())
@@ -159,7 +173,7 @@ public class JumpProcess : MonoBehaviour
                 role.state = RoleState.Raising;
                 jumpInstantSpeed = speed * 1f;
             }
-        }
+        //}
     }
 
     //空中跳
