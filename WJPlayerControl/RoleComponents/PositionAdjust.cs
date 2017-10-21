@@ -13,7 +13,7 @@ public class PositionAdjust : MonoBehaviour
     //三维半径。
     Vector3 size = new Vector3(0.1f, 0.2f, 1);
 
-    public float speed=1;
+    public float speed = 1;
 
     GameObject boxLeft;
     GameObject boxRight;
@@ -34,7 +34,7 @@ public class PositionAdjust : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (role.state != RoleState.Grounded)
+        if (role.state != RoleState.Grounded || role.moveProc.horizontalInputSpeed != 0)
         {
             return;
         }
@@ -48,7 +48,7 @@ public class PositionAdjust : MonoBehaviour
         {
             return;
         }
-        if (role.moveProc.horizontalInputSpeed!=0||role.moveProc.lastFrameSpeedVector!=Vector3.zero)
+        if (role.moveProc.horizontalInputSpeed != 0 || role.moveProc.lastFrameSpeedVector != Vector3.zero)
         {
             return;
         }
