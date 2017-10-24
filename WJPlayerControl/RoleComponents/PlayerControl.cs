@@ -38,7 +38,7 @@ public class PlayerControl : MonoBehaviour
         groundDct = GetComponent<GroundDetect>();
 
         jumpProc = GetComponent<JumpProcess>();
-        jumpProc.init();
+        jumpProc.Init();
 
         fallProc = GetComponent<FallProcess>();
 
