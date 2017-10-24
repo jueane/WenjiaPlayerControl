@@ -9,10 +9,10 @@ public class CliffDetect : MonoBehaviour
     PlayerControl cat;
 
     //检测深度
-    public float deep = 1;
+    public float deep = 3;
 
-    //检测提前量距离
-    public float front = 1;
+    //检测偏移
+    public Vector3 offset = new Vector3(1, 2, 0);
     //是否存在悬崖
     public bool isCliff;
 
@@ -21,25 +21,85 @@ public class CliffDetect : MonoBehaviour
 
     public GameObject obj;
 
+    Transform catTransform;
+
+    //间隔
+    public float maxWait = 2;
+    float wait = 0;
+
+
     // Use this for initialization
     void Start()
     {
         cat = GetComponent<PlayerControl>();
+        catTransform = cat.transform;
         layer = LayerMask.GetMask(LayerName.ground, LayerName.Danger, LayerName.Platform);
     }
 
     // Update is called once per frame
     void Update()
     {
-        //检测
-        Vector3 origin = transform.position;
+        wait += Time.deltaTime;
+        if (maxWait > 1)
+        {
+            wait = 0;
+
+            //执行检测
+            DetectDown();
+            if (isCliff)
+            {
+                DetectFront();
+            }
+        }
+    }
+
+    //检测前方
+    void DetectFront()
+    {
+        Vector3 origin = catTransform.position + Vector3.up * offset.y;
+        Vector3 direction;
         if (cat.moveProc.faceLeft)
         {
-            origin -= Vector3.right * front;
+            direction = -Vector3.right;
         }
         else
         {
-            origin += Vector3.right * front;
+            direction = Vector3.right;
+        }
+
+        RaycastHit hit;
+
+        bool isHit = Physics.Raycast(origin, direction, out hit, offset.x, layer);
+
+        if (isDebug)
+        {
+            Debug.DrawRay(origin, direction * offset.x);
+        }
+
+        if (isHit)
+        {
+            obj = hit.collider.gameObject;
+            isCliff = false;
+        }
+        else
+        {
+            obj = null;
+            isCliff = true;
+        }
+    }
+
+    //检测下方
+    void DetectDown()
+    {
+        //检测
+        Vector3 origin = catTransform.position + Vector3.up * offset.y;
+        if (cat.moveProc.faceLeft)
+        {
+            origin -= Vector3.right * offset.x;
+        }
+        else
+        {
+            origin += Vector3.right * offset.x;
         }
 
         RaycastHit hit;
@@ -58,8 +118,8 @@ public class CliffDetect : MonoBehaviour
         }
         else
         {
+            obj = null;
             isCliff = true;
         }
-
     }
 }
