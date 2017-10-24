@@ -258,7 +258,15 @@ public class GroundDetect : MonoBehaviour
                 role.state = RoleState.Grounded;
                 role.groundDct.OnStandGround();
 
-                role.jumpProc.remainJumpTimes = 1;
+                //设置二段跳
+                if (role.jumpProc.multijump)
+                {
+                    role.jumpProc.remainJumpTimes = 1;
+                }
+                else
+                {
+                    role.jumpProc.remainJumpTimes = 0;
+                }
             }
         }
 
