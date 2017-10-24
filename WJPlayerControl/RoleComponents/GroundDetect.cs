@@ -45,11 +45,16 @@ public class GroundDetect : MonoBehaviour
 
     public bool isHitIce;
 
-    public bool processBalance;
-
     //在地面的累积时间
     public float timeStand = 0;
     public float minTimeStand = 0.1f;
+
+    //旋转调整
+    public bool processBalance;
+    //落地旋转速度
+    public float rotationSpeedFalling = 8;
+    //上升旋转速度
+    public float rotationSpeedRaising = 15;
 
     // Use this for initialization
     void Start()
@@ -281,22 +286,11 @@ public class GroundDetect : MonoBehaviour
 
         float maxRotation = 0.7f;
 
-        //旋转速度，根据离地高度决定
-        float rotationSpeed = 1 - disGround;
-        if (rotationSpeed < 0)
-        {
-            rotationSpeed = 0;
-        }
-        rotationSpeed = Mathf.Lerp(0.2f, 0.6f, slope);
-
-        rotationSpeed = 15f;
-        rotationSpeed *= role.deltaTime;
-
         //旋转
         if (role.state != RoleState.Raising && role.isFloating == false && isHitLeft && isHitRight && slope < maxRotation && ((isHitLeft && slopeLeft < maxRotation) || (isHitRight && slopeRight < maxRotation)))
         {
             //慢慢旋转
-            Vector3 to = Vector3.Lerp(body.right, footVector, rotationSpeed);
+            Vector3 to = Vector3.Lerp(body.right, footVector, rotationSpeedFalling * role.deltaTime);
             to = new Vector3(to.x, to.y, 0);
             body.right = to;
 
@@ -309,7 +303,7 @@ public class GroundDetect : MonoBehaviour
             //恢复水平
             float beforeAngle = Vector3.Angle(body.right, Vector3.right);
 
-            Vector3 to = Vector3.Lerp(body.right, Vector3.right, rotationSpeed);
+            Vector3 to = Vector3.Lerp(body.right, Vector3.right, rotationSpeedRaising * role.deltaTime);
             to = new Vector3(to.x, to.y, 0);
             body.right = to;
 

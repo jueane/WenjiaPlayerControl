@@ -201,8 +201,11 @@ public class MoveProcess : MonoBehaviour, GameManagerRoleListener
         }
         else if (lastFrameSpeedVector != Vector3.zero)
         {
+            //离地面非常近的时候不再做惯性移动
+            bool closest = role.groundDct.isClosedGround && role.groundDct.actualDisGround < 0.2f;
+
             //惯性移动（冰面、大斜面、跳跃到空中）
-            if (role.groundDct.IsOnGround() == false)
+            if (role.groundDct.IsOnGround() == false && closest == false)
             {
                 isInertiaMoving = true;
                 //注意：惯性不能使用Y值。否则会影响跳跃高度，甚至穿越地面。
