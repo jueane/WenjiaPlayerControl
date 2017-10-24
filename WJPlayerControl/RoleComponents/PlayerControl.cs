@@ -16,6 +16,8 @@ public class PlayerControl : MonoBehaviour
 
     public JumpProcess jumpProc;
 
+    public CliffDetect cliffDct;
+
     //角色状态
     public RoleState state;
 
@@ -44,6 +46,8 @@ public class PlayerControl : MonoBehaviour
 
         moveProc = GetComponent<MoveProcess>();
         moveProc.init();
+
+        cliffDct = GetComponent<CliffDetect>();
     }
 
     void BeforeUpdate()
