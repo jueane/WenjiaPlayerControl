@@ -241,10 +241,27 @@ public class GroundDetect : MonoBehaviour
         //减去自身尺寸，同时减去因倾斜造成的尺寸增加。
         disGround -= 0.5f + 0.1f * slope;
 
+        actualDisGround = disGround;
         if (Mathf.Abs(disGround) < 0.02)
         {
             disGround = 0;
         }
+
+
+        //平稳落于地面（在不可站立的斜面时，属于Falling状态）
+        if (IsStandable() && isClosedGround && disGround == 0)
+        {
+            //事件通知：平稳落于地面
+            if (role.state != RoleState.Grounded)
+            {
+                print("站稳于地面");
+                role.state = RoleState.Grounded;
+                role.groundDct.OnStandGround();
+
+                role.jumpProc.remainJumpTimes = 1;
+            }
+        }
+
     }
 
     void BalanceAdjust()

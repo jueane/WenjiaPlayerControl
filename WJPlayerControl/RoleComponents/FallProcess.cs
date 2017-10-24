@@ -46,7 +46,7 @@ public class FallProcess : MonoBehaviour
             if (groundDct.isClosedGround == false || (groundDct.isClosedGround && groundDct.disGround > 0))
             {
                 //如果还是ground状态（从平台跌落。还可以跳2次。）
-                if (role.state == RoleState.Grounded|| role.groundDct.IsOnIceground())
+                if (role.state == RoleState.Grounded || role.groundDct.IsOnIceground())
                 {
                     //记录滑落方向
                     role.moveProc.lastSlideVector = role.slideProc.slideVector;
@@ -62,34 +62,24 @@ public class FallProcess : MonoBehaviour
                 }
                 role.state = RoleState.Falling;
             }
-
-            //平稳落于地面（在不可站立的斜面时，属于Falling状态）
-            if (groundDct.IsStandable() && groundDct.IsOnGround())
-            {
-                //事件通知：平稳落于地面
-                if (role.state != RoleState.Grounded)
-                {
-                    role.state = RoleState.Grounded;
-                    role.groundDct.OnStandGround();
-                }
-            }
         }
     }
 
     void Falling()
     {
+        float disToGround = groundDct.actualDisGround;
         //在地面的情况时候，Y轴位置偏差微调。
         if (role.state == RoleState.Grounded)
         {
-            if (groundDct.isClosedGround && groundDct.disGround < 0.1f)
+            if (groundDct.isClosedGround && disToGround < 0.1f)
             {
-                if (groundDct.disGround < 0)
+                if (disToGround < 0)
                 {
-                    transform.position += Vector3.down * (groundDct.disGround);
+                    transform.position += Vector3.down * disToGround;
                 }
                 else
                 {
-                    transform.position += Vector3.down * (groundDct.disGround);
+                    transform.position += Vector3.down * disToGround;
                 }
             }
         }
@@ -99,7 +89,7 @@ public class FallProcess : MonoBehaviour
             //当前帧预计下落距离
             float fallDis = fallSpeed * role.deltaTime;
             //正常下落
-            if (groundDct.isClosedGround == false || (groundDct.isClosedGround && groundDct.disGround >= fallDis))
+            if (groundDct.isClosedGround == false || (groundDct.isClosedGround && disToGround >= fallDis))
             {
                 transform.position += Vector3.down * fallDis;
 
@@ -116,15 +106,15 @@ public class FallProcess : MonoBehaviour
                 }
             }
             //下落距离不足，直接落地。
-            if (groundDct.isClosedGround && groundDct.disGround < fallDis)
+            if (groundDct.isClosedGround && disToGround < fallDis)
             {
-                if (groundDct.disGround < 0)
+                if (disToGround < 0)
                 {
-                    transform.position += Vector3.down * (groundDct.disGround);
+                    transform.position += Vector3.down * (disToGround);
                 }
-                else if (groundDct.disGround > 0)
+                else if (disToGround > 0)
                 {
-                    transform.position += Vector3.down * (groundDct.disGround);
+                    transform.position += Vector3.down * (disToGround);
                 }
             }
 

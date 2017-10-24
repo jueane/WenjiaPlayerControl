@@ -27,7 +27,7 @@ public class JumpProcess : MonoBehaviour
 
     RoleState lastRoleState;
 
-    public void init()
+    public void Init()
     {
         role = GetComponent<PlayerControl>();
         movDct = GetComponent<MoveDetect>();
@@ -38,18 +38,6 @@ public class JumpProcess : MonoBehaviour
 
     public void UpdateByParent()
     {
-        //设置连跳状态。每次落到地面都会重置双跳。
-        if (multijump && role.groundDct.IsOnGround() && role.groundDct.slope < role.maxFrictionSlope && role.state != RoleState.Raising)
-        {
-            //落地恢复连跳次数
-            remainJumpTimes = 1;
-        }
-        else if (multijump == false && role.groundDct.IsOnGround())
-        {
-            //连跳未开，落地恢复0.
-            remainJumpTimes = 0;
-        }
-
         Raise();
     }
 
@@ -139,41 +127,37 @@ public class JumpProcess : MonoBehaviour
     //地面跳
     public void _JumpOnGround(float speed)
     {
-        ////在地面或贴近地面
-        //if (role.groundDct.IsOnGround())
-        //{
-            bool isCanJump = false;
-            //在冰面（此条件属于特殊情况）
-            if (role.groundDct.IsOnIceground())
+        bool isCanJump = false;
+        //在冰面（此条件属于特殊情况）
+        if (role.groundDct.IsOnIceground())
+        {
+            isCanJump = true;
+        }
+        else
+        {
+            //双脚着地，过斜禁跳
+            if (role.groundDct.isHitLeft && role.groundDct.isHitRight && role.groundDct.slope < role.maxFrictionSlope)
             {
                 isCanJump = true;
             }
-            else
+            //单脚着地，过斜禁跳
+            if (role.groundDct.isHitLeft && role.groundDct.isHitRight == false && role.groundDct.slopeLeft < role.maxFrictionSlope)
             {
-                //双脚着地，过斜禁跳
-                if (role.groundDct.isHitLeft && role.groundDct.isHitRight && role.groundDct.slope < role.maxFrictionSlope)
-                {
-                    isCanJump = true;
-                }
-                //单脚着地，过斜禁跳
-                if (role.groundDct.isHitLeft && role.groundDct.isHitRight == false && role.groundDct.slopeLeft < role.maxFrictionSlope)
-                {
-                    isCanJump = true;
-                }
-                //单脚着地，过斜禁跳
-                if (role.groundDct.isHitLeft == false && role.groundDct.isHitRight && role.groundDct.slopeRight < role.maxFrictionSlope)
-                {
-                    isCanJump = true;
-                }
+                isCanJump = true;
             }
-            //执行跳
-            if (isCanJump)
+            //单脚着地，过斜禁跳
+            if (role.groundDct.isHitLeft == false && role.groundDct.isHitRight && role.groundDct.slopeRight < role.maxFrictionSlope)
             {
-                readyJump = false;
-                role.state = RoleState.Raising;
-                jumpInstantSpeed = speed * 1f;
+                isCanJump = true;
             }
-        //}
+        }
+        //执行跳
+        if (isCanJump)
+        {
+            readyJump = false;
+            role.state = RoleState.Raising;
+            jumpInstantSpeed = speed * 1f;
+        }
     }
 
     //空中跳
