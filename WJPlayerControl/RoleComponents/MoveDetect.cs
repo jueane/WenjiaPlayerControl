@@ -60,8 +60,8 @@ public class MoveDetect : MonoBehaviour
         Vector3 size = new Vector3(0.01f, 0.3f, 1);
         RaycastHit hitLeft, hitRight;
 
-        bool isHitLeft = Physics.BoxCast(origin + new Vector3(0, 0, 0), size / 2, -body.right, out hitLeft, body.rotation, 0.5f, LayerMask.GetMask("ground"), QueryTriggerInteraction.Ignore);
-        bool isHitRight = Physics.BoxCast(origin - new Vector3(0, 0, 0), size / 2, body.right, out hitRight, body.rotation, 0.5f, LayerMask.GetMask("ground"), QueryTriggerInteraction.Ignore);
+        bool isHitLeft = Physics.BoxCast(origin + new Vector3(0, 0, 0), size / 2, -body.right, out hitLeft, body.rotation, 0.5f, LayerMask.GetMask(LayerName.Ground), QueryTriggerInteraction.Ignore);
+        bool isHitRight = Physics.BoxCast(origin - new Vector3(0, 0, 0), size / 2, body.right, out hitRight, body.rotation, 0.5f, LayerMask.GetMask(LayerName.Ground), QueryTriggerInteraction.Ignore);
 
 
         if (isHitLeft)
@@ -90,7 +90,7 @@ public class MoveDetect : MonoBehaviour
     void CheckUp()
     {
         RaycastHit hitUp;
-        bool isHitUp = Physics.BoxCast(transform.position, new Vector3(0.4f, 0.1f, 0.5f), Vector3.up, out hitUp, Quaternion.identity, 1, LayerMask.GetMask("ground"), QueryTriggerInteraction.Ignore);
+        bool isHitUp = Physics.BoxCast(transform.position, new Vector3(0.4f, 0.1f, 0.5f), Vector3.up, out hitUp, Quaternion.identity, 1, LayerMask.GetMask(LayerName.Ground), QueryTriggerInteraction.Ignore);
         if (isHitUp && hitUp.distance < 0.4f)
         {
             moveToUp = false;
@@ -106,7 +106,7 @@ public class MoveDetect : MonoBehaviour
         moveToLeft = true;
 
         RaycastHit hitLeft;
-        bool isHitLeft = Physics.BoxCast(transform.position + new Vector3(0, 0.2f, 0), new Vector3(0.1f, 0.2f, 0.5f), -body.right, out hitLeft, body.rotation, 1, LayerMask.GetMask("ground"));
+        bool isHitLeft = Physics.BoxCast(transform.position + new Vector3(0, 0.2f, 0), new Vector3(0.1f, 0.2f, 0.5f), -body.right, out hitLeft, body.rotation, 1, LayerMask.GetMask(LayerName.Ground));
 
         leftDis = hitLeft.distance;
         if (isHitLeft && hitLeft.distance < 0.6f)
@@ -140,7 +140,7 @@ public class MoveDetect : MonoBehaviour
         moveToRight = true;
 
         RaycastHit hitRight;
-        bool isHitRight = Physics.BoxCast(transform.position + new Vector3(0, 0.2f, 0), new Vector3(0.1f, 0.2f, 0.5f), body.right, out hitRight, body.rotation, 1, LayerMask.GetMask("ground"));
+        bool isHitRight = Physics.BoxCast(transform.position + new Vector3(0, 0.2f, 0), new Vector3(0.1f, 0.2f, 0.5f), body.right, out hitRight, body.rotation, 1, LayerMask.GetMask(LayerName.Ground));
 
         rightDis = hitRight.distance;
         if (isHitRight && hitRight.distance < 0.6f)

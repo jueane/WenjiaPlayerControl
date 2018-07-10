@@ -33,7 +33,7 @@ public class CliffDetect : MonoBehaviour
     {
         cat = GetComponent<PlayerControl>();
         catTransform = cat.transform;
-        layer = LayerMask.GetMask(LayerName.ground, LayerName.Danger, LayerName.Platform);
+        layer = LayerMask.GetMask(LayerName.Ground, LayerName.Danger, LayerName.Platform);
     }
 
     // Update is called once per frame

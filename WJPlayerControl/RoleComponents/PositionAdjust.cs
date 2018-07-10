@@ -63,8 +63,8 @@ public class PositionAdjust : MonoBehaviour
         boxLeft.transform.position = posL;
         boxRight.transform.position = posR;
 
-        isHitL = Physics.CheckBox(posL, size / 2, Quaternion.identity, LayerMask.GetMask("ground"), QueryTriggerInteraction.Ignore);
-        isHitR = Physics.CheckBox(posR, size / 2, Quaternion.identity, LayerMask.GetMask("ground"), QueryTriggerInteraction.Ignore);
+        isHitL = Physics.CheckBox(posL, size / 2, Quaternion.identity, LayerMask.GetMask(LayerName.Ground), QueryTriggerInteraction.Ignore);
+        isHitR = Physics.CheckBox(posR, size / 2, Quaternion.identity, LayerMask.GetMask(LayerName.Ground), QueryTriggerInteraction.Ignore);
 
         if (isHitL != isHitR)
         {

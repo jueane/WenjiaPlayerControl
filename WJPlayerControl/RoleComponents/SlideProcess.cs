@@ -92,7 +92,7 @@ public class SlideProcess : MonoBehaviour
                     {
                         //向右下方向打射线。检测坡度
                         RaycastHit hitMid;
-                        Physics.Raycast(transform.position, new Vector3(1f, -1, 0), out hitMid, LayerMask.GetMask("ground"));
+                        Physics.Raycast(transform.position, new Vector3(1f, -1, 0), out hitMid, LayerMask.GetMask(LayerName.Ground));
 
                         float angle = Vector3.Angle(hitMid.normal, Vector3.up);
                         if (angle >= 45)
@@ -106,7 +106,7 @@ public class SlideProcess : MonoBehaviour
                     {
                         //向左下方向打射线。检测坡度
                         RaycastHit hitMid;
-                        Physics.Raycast(transform.position, new Vector3(-1f, -1, 0), out hitMid, LayerMask.GetMask("ground"));
+                        Physics.Raycast(transform.position, new Vector3(-1f, -1, 0), out hitMid, LayerMask.GetMask(LayerName.Ground));
 
                         float angle = Vector3.Angle(hitMid.normal, Vector3.up);
                         if (angle >= 45)

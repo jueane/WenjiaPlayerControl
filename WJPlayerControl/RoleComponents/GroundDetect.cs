@@ -101,9 +101,9 @@ public class GroundDetect : MonoBehaviour
 
         //Vector3 size = new Vector3(0.002f, 0.2f, 0);
 
-        //isHitLeft = Physics.BoxCast(transform.position + new Vector3(-0.3f, 0.2f, 0), size / 2, Vector3.down, out hitLeft, Quaternion.identity, 1.2f, LayerMask.GetMask("ground"), QueryTriggerInteraction.Collide);
+        //isHitLeft = Physics.BoxCast(transform.position + new Vector3(-0.3f, 0.2f, 0), size / 2, Vector3.down, out hitLeft, Quaternion.identity, 1.2f, LayerMask.GetMask(LayerName.ground), QueryTriggerInteraction.Collide);
 
-        //isHitRight = Physics.BoxCast(transform.position + new Vector3(0.3f, 0.2f, 0), size / 2, Vector3.down, out hitRight, Quaternion.identity, 1.2f, LayerMask.GetMask("ground"), QueryTriggerInteraction.Collide);
+        //isHitRight = Physics.BoxCast(transform.position + new Vector3(0.3f, 0.2f, 0), size / 2, Vector3.down, out hitRight, Quaternion.identity, 1.2f, LayerMask.GetMask(LayerName.ground), QueryTriggerInteraction.Collide);
 
 
         Vector3 originLeft = origin + new Vector3(-0.3f, 0, 0);
@@ -113,9 +113,9 @@ public class GroundDetect : MonoBehaviour
         isHitLeft = SingleFootDetect(originLeft, out hitLeft);
         isHitRight = SingleFootDetect(originRight, out hitRight);
 
-        //isHitLeft = Physics.Raycast(originLeft, Vector3.down, out hitLeft, legLength, LayerMask.GetMask("ground", "Platform"), QueryTriggerInteraction.Collide);
+        //isHitLeft = Physics.Raycast(originLeft, Vector3.down, out hitLeft, legLength, LayerMask.GetMask(LayerName.ground, LayerName.Platform), QueryTriggerInteraction.Collide);
 
-        //isHitRight = Physics.Raycast(originRight, Vector3.down, out hitRight, legLength, LayerMask.GetMask("ground", "Platform"), QueryTriggerInteraction.Collide);
+        //isHitRight = Physics.Raycast(originRight, Vector3.down, out hitRight, legLength, LayerMask.GetMask(LayerName.ground, LayerName.Platform), QueryTriggerInteraction.Collide);
 
 
 
@@ -130,11 +130,11 @@ public class GroundDetect : MonoBehaviour
 
             if (absA < absB)
             {
-                isHitRight = Physics.Raycast(origin, Vector3.down, out hitRight, legLength, LayerMask.GetMask("ground", "Platform"), QueryTriggerInteraction.Collide);
+                isHitRight = Physics.Raycast(origin, Vector3.down, out hitRight, legLength, LayerMask.GetMask(LayerName.Ground, LayerName.Platform), QueryTriggerInteraction.Collide);
             }
             if (absA > absB)
             {
-                isHitLeft = Physics.Raycast(origin, Vector3.down, out hitLeft, legLength, LayerMask.GetMask("ground", "Platform"), QueryTriggerInteraction.Collide);
+                isHitLeft = Physics.Raycast(origin, Vector3.down, out hitLeft, legLength, LayerMask.GetMask(LayerName.Ground, LayerName.Platform), QueryTriggerInteraction.Collide);
             }
 
         }
@@ -149,7 +149,7 @@ public class GroundDetect : MonoBehaviour
         pR.z = origin.z;
 
         //是否命中冰面
-        isHitIce = (isHitLeft && "IceGround".Equals(hitLeft.transform.tag)) || (isHitRight && "IceGround".Equals(hitRight.transform.tag));
+        isHitIce = (isHitLeft && TagName.IceGround.Equals(hitLeft.transform.tag)) || (isHitRight && TagName.IceGround.Equals(hitRight.transform.tag));
 
         //移动方向
         if (isHitLeft && isHitRight)
@@ -259,7 +259,7 @@ public class GroundDetect : MonoBehaviour
             //事件通知：平稳落于地面
             if (role.state != RoleState.Grounded)
             {
-                print("站稳于地面");
+                //print("站稳于地面");
                 role.state = RoleState.Grounded;
                 role.groundDct.OnStandGround();
 
@@ -407,7 +407,7 @@ public class GroundDetect : MonoBehaviour
 
     bool SingleFootDetect(Vector3 originPos, out RaycastHit hitinfo)
     {
-        int instLayer = LayerMask.GetMask("ground", "Platform");
+        int instLayer = LayerMask.GetMask(LayerName.Ground, LayerName.Platform);
         float width = 0.1f / 5;
 
         List<RaycastHit> hitList = new List<RaycastHit>();

@@ -18,6 +18,8 @@ public class PlayerControl : MonoBehaviour
 
     public CliffDetect cliffDct;
 
+    public AnimatorControl animator;
+
     //角色状态
     public RoleState state;
 
@@ -48,6 +50,8 @@ public class PlayerControl : MonoBehaviour
         moveProc.init();
 
         cliffDct = GetComponent<CliffDetect>();
+
+        animator = GetComponent<AnimatorControl>();
     }
 
     void BeforeUpdate()
